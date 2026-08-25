@@ -1,14 +1,669 @@
-<h2>4. Results</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<p>
-The machine-learning approach was compared with the transparent rule-based
-baseline using the same evaluation design. The comparison was used to check
-whether the more complex approach provided useful improvement over the simple
-baseline.
-</p>
+    <title>Refresh & Content Opportunity Scoring | FlyRank ML Internship</title>
 
-<p>
-The results are interpreted as measured and directional evidence for
-decision-support. They are not treated as causal evidence and do not imply
-that the model predicts or controls Google's ranking system.
-</p>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            line-height: 1.7;
+            background: #f5f6f8;
+            color: #202124;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            background: white;
+            padding: 60px 70px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        header {
+            border-bottom: 2px solid #222;
+            padding-bottom: 30px;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 38px;
+            line-height: 1.2;
+            margin-bottom: 15px;
+        }
+
+        h2 {
+            margin-top: 45px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #ddd;
+            font-size: 25px;
+        }
+
+        h3 {
+            margin-top: 30px;
+            font-size: 19px;
+        }
+
+        p {
+            font-size: 16px;
+        }
+
+        .subtitle {
+            font-size: 19px;
+            color: #666;
+        }
+
+        .meta {
+            margin-top: 20px;
+            color: #555;
+        }
+
+        .abstract {
+            background: #f1f3f5;
+            padding: 25px;
+            border-left: 5px solid #333;
+            margin: 25px 0;
+        }
+
+        .highlight {
+            background: #fafafa;
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background: #f0f1f3;
+        }
+
+        ul, ol {
+            padding-left: 25px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        code {
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .metric-box {
+            display: flex;
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .metric {
+            flex: 1;
+            border: 1px solid #ddd;
+            padding: 20px;
+            background: #fafafa;
+        }
+
+        .metric strong {
+            display: block;
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .warning {
+            border-left: 5px solid #555;
+            padding: 15px 20px;
+            background: #f5f5f5;
+            margin: 25px 0;
+        }
+
+        footer {
+            margin-top: 60px;
+            padding-top: 25px;
+            border-top: 2px solid #222;
+            color: #666;
+            font-size: 14px;
+        }
+
+        a {
+            color: #222;
+            font-weight: bold;
+        }
+
+        @media (max-width: 700px) {
+            .container {
+                margin: 0;
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 30px;
+            }
+
+            .metric-box {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- HEADER -->
+
+    <header>
+        <h1>Refresh &amp; Content Opportunity Scoring</h1>
+
+        <p class="subtitle">
+            A Search Intelligence approach for prioritizing content review
+        </p>
+
+        <div class="meta">
+            <strong>Author:</strong> Nioshi<br>
+            <strong>Lane:</strong> Refresh / Content Opportunity Scoring<br>
+            <strong>Dataset:</strong> FlyRank ML Internship Dataset<br>
+            <strong>Development window:</strong> March 2026
+        </div>
+    </header>
+
+
+    <!-- ABSTRACT -->
+
+    <h2>Abstract</h2>
+
+    <div class="abstract">
+        <p>
+            This project studies how search-performance signals can be used to
+            prioritize content pages for human review. The analysis uses the
+            FlyRank ML Internship warehouse and focuses on daily
+            content-performance data. A transparent rule-based baseline was
+            created first and then compared with a machine-learning approach.
+            The results provide directional evidence about which pages may
+            deserve further content review, while avoiding causal claims about
+            search-engine behavior. The final output is a ranked action queue
+            intended to support content teams in deciding where to spend
+            limited review time.
+        </p>
+    </div>
+
+
+    <!-- INTRODUCTION -->
+
+    <h2>1. Introduction / Problem Statement</h2>
+
+    <p>
+        Content teams can have a large number of pages that could potentially
+        be reviewed or improved. Reviewing every page equally is inefficient,
+        so a useful system should help identify which pages deserve attention
+        first.
+    </p>
+
+    <p>
+        The decision supported by this project is:
+        <strong>Which content pages should be reviewed first?</strong>
+    </p>
+
+    <p>
+        The unit of analysis is one content item for one client for one day.
+        The output is a ranked action score and review queue.
+    </p>
+
+    <p>
+        The baseline prioritizes pages that have relatively high search
+        visibility but weaker average search position. These pages may have
+        enough visibility to justify further human review.
+    </p>
+
+    <div class="highlight">
+        <strong>Human action:</strong>
+        An editor reviews the highest-ranked pages and decides whether an
+        actual content change is appropriate.
+    </div>
+
+    <p>
+        A wrong recommendation could result in editorial time being spent on
+        an unimportant page while another useful opportunity is overlooked.
+        Therefore, the output is designed as decision-support rather than an
+        automatic content-change system.
+    </p>
+
+
+    <!-- DATA -->
+
+    <h2>2. Data</h2>
+
+    <p>
+        The project uses the FlyRank ML Internship warehouse. The main
+        development analysis uses March 2026, which provides a middle-month
+        development window rather than using the final month as the main
+        development dataset.
+    </p>
+
+    <h3>Dataset structure</h3>
+
+    <p>
+        The daily content-performance data contains observations including
+        search impressions, clicks, search position, sessions, pageviews and
+        other performance signals.
+    </p>
+
+    <table>
+        <tr>
+            <th>Item</th>
+            <th>Value</th>
+        </tr>
+
+        <tr>
+            <td>Development month</td>
+            <td>March 2026</td>
+        </tr>
+
+        <tr>
+            <td>Rows in March 2026</td>
+            <td>9,841,378</td>
+        </tr>
+
+        <tr>
+            <td>March start date</td>
+            <td>2026-03-01</td>
+        </tr>
+
+        <tr>
+            <td>March end date</td>
+            <td>2026-03-31</td>
+        </tr>
+
+        <tr>
+            <td>Rows with GA4 available</td>
+            <td>413,966</td>
+        </tr>
+    </table>
+
+    <h3>Fields used</h3>
+
+    <ul>
+        <li><code>gsc_impressions</code></li>
+        <li><code>gsc_clicks</code></li>
+        <li><code>gsc_avg_position</code></li>
+        <li><code>ga4_sessions</code></li>
+        <li><code>ga4_pageviews</code></li>
+        <li><code>ga4_users</code></li>
+        <li><code>ga4_engaged_sessions</code></li>
+    </ul>
+
+    <h3>Fields deliberately excluded</h3>
+
+    <ul>
+        <li>Raw URLs</li>
+        <li>Search queries</li>
+        <li>Titles</li>
+        <li>Client-identifying information</li>
+        <li>Credentials</li>
+        <li>Existing product decision flags</li>
+        <li>Label-derived fields such as <code>trend_direction</code> and <code>trend_pct</code></li>
+    </ul>
+
+    <p>
+        Pseudonymous identifiers are used only for grouping and identifying
+        observations. They are not used as predictive features.
+    </p>
+
+
+    <!-- METHODOLOGY -->
+
+    <h2>3. Methodology</h2>
+
+    <h3>3.1 Baseline rule</h3>
+
+    <p>
+        The baseline is a transparent rule-based ranking. Pages with relatively
+        high search impressions and weaker average search position receive
+        higher priority for review.
+    </p>
+
+    <p>
+        The main reason code is:
+        <code>HIGH_VOLUME_WEAK_POSITION</code>.
+    </p>
+
+    <p>
+        Pages that do not match the selected pattern receive:
+        <code>LOW_PRIORITY</code>.
+    </p>
+
+    <h3>3.2 Machine-learning approach</h3>
+
+    <p>
+        A tree-based machine-learning approach was used to combine multiple
+        observable search-performance signals.
+    </p>
+
+    <p>
+        A tree-based method is useful here because the relationship between
+        different performance signals does not necessarily have to be
+        linear. The goal is to create a repeatable ranking or decision-support
+        process rather than an automatic content-editing system.
+    </p>
+
+    <h3>3.3 Leakage control</h3>
+
+    <p>
+        Label-derived fields and future-window information were excluded from
+        the feature set. This is important because information from after the
+        decision point would give the model information it would not actually
+        have when making a real recommendation.
+    </p>
+
+    <div class="warning">
+        <strong>Leakage rule:</strong>
+        Future outcomes must not be used as inputs to a recommendation that
+        is supposed to be made before those outcomes occur.
+    </div>
+
+
+    <!-- EVALUATION -->
+
+    <h2>4. Evaluation &amp; Results</h2>
+
+    <p>
+        The model was compared against the transparent baseline using the same
+        evaluation task and evaluation design. The purpose of the comparison
+        is to determine whether the more complex approach provides useful
+        improvement over the simple rule.
+    </p>
+
+    <table>
+        <tr>
+            <th>Approach</th>
+            <th>Evaluation</th>
+            <th>Result</th>
+        </tr>
+
+        <tr>
+            <td>Rule-based baseline</td>
+            <td>Same evaluation metric as model</td>
+            <td>See executed validation notebook</td>
+        </tr>
+
+        <tr>
+            <td>Tree-based model</td>
+            <td>Same evaluation metric as baseline</td>
+            <td>See executed validation notebook</td>
+        </tr>
+    </table>
+
+    <p>
+        Exact metric values are maintained in the executed modeling and
+        validation notebooks so that the reported result can be reproduced
+        from the analysis workflow rather than manually estimated.
+    </p>
+
+    <p>
+        The results are interpreted as measured and directional evidence.
+        They are not treated as proof that a particular content change will
+        cause a particular search outcome.
+    </p>
+
+
+    <!-- INTERPRETATION -->
+
+    <h2>5. Interpretation</h2>
+
+    <p>
+        The baseline analysis suggests that search visibility and average
+        search position provide useful observable signals for prioritizing
+        pages for review.
+    </p>
+
+    <p>
+        The March dataset contains substantial variation in search visibility.
+        The observed impression buckets were:
+    </p>
+
+    <table>
+        <tr>
+            <th>Impression bucket</th>
+            <th>Observed rows</th>
+        </tr>
+
+        <tr>
+            <td>0 impressions</td>
+            <td>6,230,317</td>
+        </tr>
+
+        <tr>
+            <td>1–99 impressions</td>
+            <td>2,972,453</td>
+        </tr>
+
+        <tr>
+            <td>100–499 impressions</td>
+            <td>537,157</td>
+        </tr>
+
+        <tr>
+            <td>500+ impressions</td>
+            <td>101,451</td>
+        </tr>
+    </table>
+
+    <p>
+        These observations show that pages differ substantially in search
+        visibility, making prioritization potentially useful when editorial
+        resources are limited.
+    </p>
+
+    <p>
+        However, search-performance signals do not capture every factor that
+        matters to an editorial decision. Content quality, search intent,
+        business importance and seasonality are not completely represented by
+        these measurements.
+    </p>
+
+
+    <!-- RECOMMENDATIONS -->
+
+    <h2>6. Ranked Content Recommendations</h2>
+
+    <p>
+        The final output is intended to be used as a ranked human-review queue.
+    </p>
+
+    <ol>
+        <li>
+            <strong>Review high-visibility, weaker-position pages.</strong>
+            These pages receive the highest priority because they combine
+            measurable search visibility with room for further review.
+        </li>
+
+        <li>
+            <strong>Check search intent.</strong>
+            An editor should verify that the page actually matches the intent
+            behind the searches generating its visibility.
+        </li>
+
+        <li>
+            <strong>Check content quality and freshness.</strong>
+            A high score alone is not sufficient evidence that a page needs
+            updating.
+        </li>
+
+        <li>
+            <strong>Check recent changes and seasonality.</strong>
+            Temporary changes can create misleading signals.
+        </li>
+
+        <li>
+            <strong>Make the final decision manually.</strong>
+            The system should recommend pages for review, not automatically
+            modify content.
+        </li>
+    </ol>
+
+    <h3>Reason code</h3>
+
+    <div class="highlight">
+        <strong>HIGH_VOLUME_WEAK_POSITION</strong><br>
+        Page has relatively high search visibility while showing a weaker
+        average search position. This makes it a candidate for human review.
+    </div>
+
+
+    <!-- LIMITATIONS -->
+
+    <h2>7. Limitations &amp; Honest Framing</h2>
+
+    <p>
+        This project is based on observational data. The analysis can identify
+        measured patterns and produce directional recommendations, but it
+        cannot establish causal relationships without an appropriate
+        experimental or causal design.
+    </p>
+
+    <ul>
+        <li>
+            Client histories are not necessarily balanced.
+        </li>
+
+        <li>
+            Some observations may have GSC data available without corresponding
+            GA4 data.
+        </li>
+
+        <li>
+            Time windows must be separated carefully to prevent leakage.
+        </li>
+
+        <li>
+            Search-performance signals do not fully represent content quality
+            or business value.
+        </li>
+
+        <li>
+            The analysis does not predict Google's ranking algorithm.
+        </li>
+    </ul>
+
+    <div class="warning">
+        <strong>Important:</strong>
+        The recommendations should be treated as decision-support for human
+        review, not as automatic instructions or causal predictions.
+    </div>
+
+
+    <!-- INTENDED USE -->
+
+    <h2>8. Intended Use &amp; Human Review</h2>
+
+    <p>
+        The intended user is a content or SEO editor who needs to prioritize
+        review work across many pages.
+    </p>
+
+    <p>
+        Before acting on a recommendation, a human should check the actual
+        page context, search intent, content quality, recent performance and
+        business importance.
+    </p>
+
+    <h3>No-go decisions</h3>
+
+    <ul>
+        <li>Do not automatically rewrite a page based only on its score.</li>
+        <li>Do not treat the score as proof of a Google ranking cause.</li>
+        <li>Do not expose private client information.</li>
+        <li>Do not use future outcomes as decision-time inputs.</li>
+        <li>Do not treat a recommendation as guaranteed performance improvement.</li>
+    </ul>
+
+
+    <!-- REPRODUCIBILITY -->
+
+    <h2>9. Reproducibility</h2>
+
+    <p>
+        The complete analysis workflow is stored in the repository under
+        <code>work/notebooks/</code>.
+    </p>
+
+    <p>
+        The notebooks cover research-question framing, ML-task framing,
+        data-contract verification, baseline construction, modeling,
+        validation and the final action playbook.
+    </p>
+
+    <p>
+        DuckDB is used to query the warehouse data, while the modeling workflow
+        uses Python and standard machine-learning tools.
+    </p>
+
+    <p>
+        The Hugging Face access token is stored as a private Colab secret and
+        is not included in the repository.
+    </p>
+
+    <p>
+        The repository containing the complete workflow is:
+    </p>
+
+    <p>
+        <a href="https://github.com/nioshis-cmd/flyrank-ml">
+            View the project repository
+        </a>
+    </p>
+
+
+    <!-- ACKNOWLEDGMENTS -->
+
+    <h2>10. Acknowledgments &amp; Data Credit</h2>
+
+    <p>
+        Built on the <strong>FlyRank ML Internship dataset</strong>.
+    </p>
+
+    <p>
+        Data source:
+        <a href="https://flyrank.ai" target="_blank">
+            FlyRank
+        </a>
+    </p>
+
+
+    <!-- FOOTER -->
+
+    <footer>
+        <p>
+            Search Intelligence Capstone · FlyRank ML Internship
+        </p>
+
+        <p>
+            This work presents observed and directional analysis for
+            decision-support. It does not make causal claims about search
+            engine behavior.
+        </p>
+    </footer>
+
+</div>
+
+</body>
+</html>
